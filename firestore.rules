@@ -1,0 +1,56 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // ===============================================================
+    // Assumed Data Model
+    // ===============================================================
+    // Collection: submissions
+    // Fields:
+    //   - name: string (required)
+    //   - email: string (required, email format)
+    //   - subject: string (optional)
+    //   - message: string (required)
+    //   - createdAt: timestamp (required)
+    //
+    // Collection: configs
+    // Fields:
+    //   - googleTokens: map (optional)
+    //   - spreadsheetId: string (optional)
+    // ===============================================================
+
+    // Helper Functions
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function isAdmin() {
+      return isAuthenticated() && (
+        request.auth.token.email == "amandeepsaini951@gmail.com" && 
+        request.auth.token.email_verified == true
+      );
+    }
+
+    function isValidEmail(email) {
+      return email is string && email.matches("^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$");
+    }
+
+    function isValidSubmission(data) {
+      return data.keys().hasAll(['name', 'email', 'message', 'createdAt']) &&
+             data.name is string && data.name.size() > 0 && data.name.size() < 100 &&
+             isValidEmail(data.email) &&
+             data.message is string && data.message.size() > 0 && data.message.size() < 5000 &&
+             data.createdAt is timestamp;
+    }
+
+    // Submissions: Anyone can create (to allow contact form), but only admin can read
+    match /submissions/{submissionId} {
+      allow create: if isValidSubmission(request.resource.data);
+      allow read, list: if isAdmin();
+    }
+
+    // Configs: Only admin can read/write
+    match /configs/{configId} {
+      allow read, write: if isAdmin();
+    }
+  }
+}

@@ -1,0 +1,18 @@
+import { initializeApp } from 'firebase/app';
+import { getAuth } from 'firebase/auth';
+import { getFirestore } from 'firebase/firestore';
+
+const firebaseConfig = {
+  "projectId": "gen-lang-client-0165436495",
+  "appId": "1:1047719100269:web:d34967d3935754ae27a464",
+  "apiKey": "AIzaSyArubxL9rWloweyuIW7LQ_BnQllUJ0QCHI",
+  "authDomain": "gen-lang-client-0165436495.firebaseapp.com",
+  "firestoreDatabaseId": "ai-studio-d0adc278-f95f-486f-a320-41c1dc55fb19",
+  "storageBucket": "gen-lang-client-0165436495.firebasestorage.app",
+  "messagingSenderId": "1047719100269",
+  "measurementId": ""
+};
+
+const app = initializeApp(firebaseConfig);
+export const db = getFirestore(app, firebaseConfig.firestoreDatabaseId);
+export const auth = getAuth(app);
